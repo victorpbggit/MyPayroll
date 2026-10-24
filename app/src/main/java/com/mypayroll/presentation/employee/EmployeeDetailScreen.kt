@@ -10,7 +10,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,7 +41,6 @@ import com.mypayroll.presentation.common.EmptyState
 import com.mypayroll.presentation.common.LoadingState
 import com.mypayroll.presentation.common.StatusChip
 import com.mypayroll.presentation.common.Tone
-import com.mypayroll.presentation.compensation.EmployeeCompensationScreen
 import com.mypayroll.presentation.discipline.DisciplineScreen
 import com.mypayroll.presentation.document.DocumentScreen
 import com.mypayroll.presentation.leave.LeaveScreen
@@ -51,7 +52,7 @@ private val tabTitles = listOf("Ringkasan", "Posisi", "Kontrak", "Kompensasi", "
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmployeeDetailScreen(employeeId: Long, onBack: () -> Unit, onEdit: (Long) -> Unit) {
+fun EmployeeDetailScreen(employeeId: Long, onBack: () -> Unit, onEdit: (Long) -> Unit, onOpenCompensation: (Long) -> Unit) {
     val container = LocalAppContainer.current
     val profileUseCase = remember {
         ObserveEmployeeProfileUseCase(
@@ -85,7 +86,7 @@ fun EmployeeDetailScreen(employeeId: Long, onBack: () -> Unit, onEdit: (Long) ->
                     0 -> ProfileSummaryTab(current)
                     1 -> PositionHistoryScreen(employeeId)
                     2 -> ContractMonitoringTab(employeeId)
-                    3 -> EmployeeCompensationScreen(employeeId, showTopBar = false)
+                    3 -> CompensationEntryTab(employeeId, onOpenCompensation)
                     4 -> AttendanceScreen(employeeId)
                     5 -> LeaveScreen(employeeId)
                     6 -> OvertimeScreen(employeeId, showTopBar = false)
@@ -137,6 +138,25 @@ private fun ProfileSummaryTab(profile: com.mypayroll.domain.model.EmployeeProfil
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Gaji Pokok Terakhir", style = MaterialTheme.typography.titleMedium)
                 Text(profile.latestSalary?.basicSalary?.toRupiah() ?: "Belum ada data gaji")
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompensationEntryTab(employeeId: Long, onOpenCompensation: (Long) -> Unit) {
+    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Kompensasi", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Lihat dan kelola Gaji Pokok, Variable, Lembur, dan Insentif karyawan ini di halaman Kompensasi.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Button(onClick = { onOpenCompensation(employeeId) }) {
+                    Text("Buka Kompensasi")
+                    Icon(Icons.Filled.ArrowForward, contentDescription = null, modifier = Modifier.padding(start = 8.dp))
+                }
             }
         }
     }

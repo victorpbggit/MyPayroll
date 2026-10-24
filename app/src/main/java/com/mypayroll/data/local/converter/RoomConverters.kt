@@ -29,12 +29,6 @@ class RoomConverters {
     @TypeConverter fun fromContractStatus(v: ContractStatus?) = v?.name
     @TypeConverter fun toContractStatus(v: String?) = v?.let(ContractStatus::valueOf)
 
-    @TypeConverter fun fromPayComponentCategory(v: PayComponentCategory?) = v?.name
-    @TypeConverter fun toPayComponentCategory(v: String?) = v?.let(PayComponentCategory::valueOf)
-
-    @TypeConverter fun fromCalculationType(v: CalculationType?) = v?.name
-    @TypeConverter fun toCalculationType(v: String?) = v?.let(CalculationType::valueOf)
-
     @TypeConverter fun fromDisciplinaryActionType(v: DisciplinaryActionType?) = v?.name
     @TypeConverter fun toDisciplinaryActionType(v: String?) = v?.let(DisciplinaryActionType::valueOf)
 

@@ -8,7 +8,6 @@ import com.mypayroll.domain.model.PayrollLineItem
 import com.mypayroll.domain.model.PayrollPolicy
 import com.mypayroll.domain.repository.AttendanceRepository
 import com.mypayroll.domain.repository.EmployeeIncentiveRepository
-import com.mypayroll.domain.repository.EmployeePayComponentHistoryRepository
 import com.mypayroll.domain.repository.EmployeeRepository
 import com.mypayroll.domain.repository.EmployeeSalaryHistoryRepository
 import com.mypayroll.domain.repository.OvertimeAssignmentRepository
@@ -17,15 +16,18 @@ import kotlinx.coroutines.flow.first
 
 /**
  * Computes a payroll preview for a period from existing data only: latest basic salary
- * effective on/before the period, pay-component history active during the period,
- * incentives dated within the period, and approved overtime whose assignment date falls
- * within the period. Nothing here is persisted - see [ApprovePayrollUseCase] /
- * [FinalizePayrollUseCase] for that, which is a separate, explicit step.
+ * effective on/before the period, incentives dated within the period, and approved overtime
+ * whose assignment date falls within the period. Nothing here is persisted - see
+ * [ApprovePayrollUseCase] / [FinalizePayrollUseCase] for that, which is a separate, explicit step.
+ *
+ * `totalAllowance` is always 0 as of this change: its previous source, per-employee pay-component
+ * history (`EmployeePayComponentHistoryRepository`/`PayComponentEntity`), was removed at the user's
+ * explicit request (see mod report). No replacement source was specified, so no formula was
+ * invented here - this is a real change to official payroll output, not a bug.
  */
 class PreviewPayrollUseCase(
     private val employeeRepository: EmployeeRepository,
     private val salaryHistoryRepository: EmployeeSalaryHistoryRepository,
-    private val payComponentHistoryRepository: EmployeePayComponentHistoryRepository,
     private val incentiveRepository: EmployeeIncentiveRepository,
     private val overtimeAssignmentRepository: OvertimeAssignmentRepository,
     private val overtimeRecordRepository: OvertimeRecordRepository,
@@ -34,7 +36,6 @@ class PreviewPayrollUseCase(
     suspend operator fun invoke(period: PayrollPeriodEntity, policy: PayrollPolicy): List<PayrollLineItem> {
         val employees = employeeRepository.observeAll().first().filter { it.status == EmployeeStatus.ACTIVE }
         val allSalaryHistory = salaryHistoryRepository.observeAll().first()
-        val allComponentHistory = payComponentHistoryRepository.observeAll().first()
         val allIncentives = incentiveRepository.observeAll().first()
         val allAssignments = overtimeAssignmentRepository.observeAll().first()
         val allRecords = overtimeRecordRepository.observeAll().first()
@@ -45,13 +46,7 @@ class PreviewPayrollUseCase(
                 .filter { it.employeeId == employee.id && !it.effectiveDate.isAfter(period.endDate) }
                 .maxByOrNull { it.effectiveDate }?.basicSalary ?: 0L
 
-            val totalAllowance = allComponentHistory
-                .filter {
-                    it.employeeId == employee.id &&
-                        !it.effectiveDate.isAfter(period.endDate) &&
-                        (it.endDate == null || !it.endDate.isBefore(period.startDate))
-                }
-                .sumOf { it.amount }
+            val totalAllowance = 0L
 
             val totalIncentive = allIncentives
                 .filter { it.employeeId == employee.id && !it.date.isBefore(period.startDate) && !it.date.isAfter(period.endDate) }

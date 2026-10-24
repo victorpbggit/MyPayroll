@@ -16,6 +16,8 @@ data class EmployeeSalaryHistoryEntity(
     val effectiveDate: LocalDate,
     val basicSalary: Long,
     val salaryType: SalaryType = SalaryType.MONTHLY,
+    /** Tunjangan Jabatan (TJ) - hanya berlaku saat employee.payrollType == MONTHLY; 0 jika tidak berlaku. */
+    val positionAllowance: Long = 0L,
     val reason: String? = null,
     val referenceDocumentId: Long? = null,
     val approvedBy: Long? = null,

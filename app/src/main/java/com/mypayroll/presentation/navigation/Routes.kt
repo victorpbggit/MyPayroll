@@ -5,6 +5,7 @@ object Routes {
     const val EMPLOYEES = "employees"
     const val EMPLOYEE_DETAIL = "employees/{employeeId}"
     const val EMPLOYEE_EDIT = "employees/{employeeId}/edit"
+    const val EMPLOYEE_COMPENSATION = "employees/{employeeId}/compensation"
     const val ATTENDANCE = "attendance"
     const val LEAVE = "leave"
     const val OVERTIME = "overtime"
@@ -15,9 +16,15 @@ object Routes {
     const val PAYROLL_DETAIL = "payroll/{periodId}"
     const val PAYROLL_CALCULATOR = "payroll/{periodId}/calculator"
     const val PAYROLL_SETUP = "payroll/setup"
+    const val PAYROLL_CALENDAR = "payroll/setup/calendar"
+    const val PAYROLL_OVERTIME_RULES = "payroll/setup/overtime-rules"
+    const val PAYROLL_LATE_PENALTY = "payroll/setup/late-penalty"
+    const val PAYROLL_GENERAL_SETTINGS = "payroll/setup/general-settings"
+    const val PAYROLL_INCENTIVE_TYPES = "payroll/setup/incentive-types"
 
     fun employeeDetail(id: Long) = "employees/$id"
     fun employeeEdit(id: Long) = "employees/$id/edit"
+    fun employeeCompensation(id: Long) = "employees/$id/compensation"
     fun payrollDetail(id: Long) = "payroll/$id"
     fun payrollCalculator(id: Long) = "payroll/$id/calculator"
 }

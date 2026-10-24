@@ -8,8 +8,7 @@ import java.time.LocalDate
 @Entity(
     tableName = "employee_incentive",
     foreignKeys = [
-        ForeignKey(entity = EmployeeEntity::class, parentColumns = ["id"], childColumns = ["employeeId"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(entity = PayComponentEntity::class, parentColumns = ["id"], childColumns = ["payComponentId"], onDelete = ForeignKey.RESTRICT)
+        ForeignKey(entity = EmployeeEntity::class, parentColumns = ["id"], childColumns = ["employeeId"], onDelete = ForeignKey.CASCADE)
     ],
     indices = [Index("employeeId", "date"), Index("payComponentId"), Index("workOrderId")]
 )
@@ -17,6 +16,7 @@ data class EmployeeIncentiveEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val employeeId: Long,
     val date: LocalDate,
+    /** Sebelumnya foreign key ke PayComponentEntity (kini dihapus) - kolom dibiarkan ada tanpa relasi, lihat mod report. */
     val payComponentId: Long,
     val amount: Long,
     val workOrderId: Long? = null,

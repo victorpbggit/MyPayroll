@@ -3,15 +3,19 @@ package com.mypayroll.presentation.employee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,11 +32,47 @@ import androidx.compose.ui.unit.dp
 import com.mypayroll.core.di.LocalAppContainer
 import com.mypayroll.data.local.entity.EmployeeStatus
 import com.mypayroll.data.local.entity.Gender
+import com.mypayroll.data.local.entity.MemberType
+import com.mypayroll.data.local.entity.PayrollType
 import com.mypayroll.presentation.common.DateField
 import com.mypayroll.presentation.common.EnumDropdownField
 import com.mypayroll.presentation.common.ErrorBanner
 import com.mypayroll.presentation.common.LoadingState
 import java.time.LocalDate
+
+private fun PayrollType.label(): String = when (this) {
+    PayrollType.MONTHLY -> "Bulanan"
+    PayrollType.DAILY -> "Harian"
+}
+
+private fun MemberType.label(): String = when (this) {
+    MemberType.PERTALITE -> "Pertalite"
+    MemberType.PERTAMAX -> "Pertamax"
+}
+
+/** Dropdown enum nullable - [EnumDropdownField] yang sudah ada tidak mendukung state "belum dipilih". */
+@Composable
+private fun <T> NullableEnumDropdownField(
+    label: String,
+    selected: T?,
+    options: List<T>,
+    onSelected: (T?) -> Unit,
+    display: (T) -> String,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(modifier) {
+        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+            Text("$label: ${selected?.let(display) ?: "Belum dipilih"}")
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text("Belum dipilih") }, onClick = { onSelected(null); expanded = false })
+            options.forEach { opt ->
+                DropdownMenuItem(text = { Text(display(opt)) }, onClick = { onSelected(opt); expanded = false })
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +107,9 @@ fun EmployeeEditScreen(employeeId: Long, onDone: () -> Unit) {
         var joinDate by remember(employee.id) { mutableStateOf<LocalDate?>(employee.joinDate) }
         var resignDate by remember(employee.id) { mutableStateOf(employee.resignDate) }
         var status by remember(employee.id) { mutableStateOf(employee.status) }
+        var payrollType by remember(employee.id) { mutableStateOf(employee.payrollType) }
+        var memberType by remember(employee.id) { mutableStateOf(employee.memberType) }
+        var emergencyContact by remember(employee.id) { mutableStateOf(employee.emergencyContact ?: "") }
 
         Column(
             Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
@@ -83,6 +126,13 @@ fun EmployeeEditScreen(employeeId: Long, onDone: () -> Unit) {
             DateField("Tanggal masuk", joinDate, { joinDate = it })
             DateField("Tanggal keluar", resignDate, { resignDate = it }, allowClear = true)
             EnumDropdownField("Status", status, EmployeeStatus.entries, { status = it })
+            NullableEnumDropdownField("Payroll Type", payrollType, PayrollType.entries, { payrollType = it }, display = { it.label() })
+            NullableEnumDropdownField("Member Type", memberType, MemberType.entries, { memberType = it }, display = { it.label() })
+            OutlinedTextField(
+                emergencyContact, { emergencyContact = it },
+                label = { Text("Pihak Keluarga & No. Telp") },
+                placeholder = { Text("Nama - No. Telp") }
+            )
 
             Button(
                 enabled = nik.isNotBlank() && name.isNotBlank() && joinDate != null && !state.isSaving,
@@ -92,7 +142,9 @@ fun EmployeeEditScreen(employeeId: Long, onDone: () -> Unit) {
                             nik = nik.trim(), name = name.trim(),
                             phone = phone.trim().ifBlank { null }, email = email.trim().ifBlank { null },
                             address = address.trim().ifBlank { null }, birthDate = birthDate, gender = gender,
-                            joinDate = joinDate!!, resignDate = resignDate, status = status
+                            joinDate = joinDate!!, resignDate = resignDate, status = status,
+                            payrollType = payrollType, memberType = memberType,
+                            emergencyContact = emergencyContact.trim().ifBlank { null }
                         )
                     )
                 }

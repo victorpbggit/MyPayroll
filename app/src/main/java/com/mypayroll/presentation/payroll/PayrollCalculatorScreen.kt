@@ -71,7 +71,6 @@ private fun PayrollCalculatorContent(period: PayrollPeriodEntity, onBack: () -> 
             container.employeeRepository,
             container.employeeSalaryHistoryRepository,
             container.attendanceRepository,
-            container.payrollSetupRepository,
             CalculatePayrollUseCase()
         )
     }
@@ -140,7 +139,6 @@ private fun PayrollCalculatorContent(period: PayrollPeriodEntity, onBack: () -> 
 
     if (showAddOvertime) {
         AddOvertimeEventDialog(
-            defaultPremium = state.defaultOvertimePremiumPerEvent,
             onDismiss = { showAddOvertime = false },
             onSave = { hours, premium -> viewModel.addOvertimeEvent(hours, premium); showAddOvertime = false }
         )
@@ -292,9 +290,9 @@ private fun BreakdownRow(label: String, amount: Long, emphasize: Boolean = false
 }
 
 @Composable
-private fun AddOvertimeEventDialog(defaultPremium: Long, onDismiss: () -> Unit, onSave: (Int, Long) -> Unit) {
+private fun AddOvertimeEventDialog(onDismiss: () -> Unit, onSave: (Int, Long) -> Unit) {
     var hours by remember { mutableStateOf("") }
-    var premium by remember { mutableStateOf(defaultPremium.toString()) }
+    var premium by remember { mutableStateOf("0") }
     val hoursInt = hours.toIntOrNull()
 
     AlertDialog(

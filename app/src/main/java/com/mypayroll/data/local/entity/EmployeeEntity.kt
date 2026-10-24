@@ -16,5 +16,12 @@ data class EmployeeEntity(
     val address: String? = null,
     val joinDate: LocalDate,
     val resignDate: LocalDate? = null,
-    val status: EmployeeStatus = EmployeeStatus.ACTIVE
+    val status: EmployeeStatus = EmployeeStatus.ACTIVE,
+    val payrollType: PayrollType? = null,
+    val memberType: MemberType? = null,
+    val emergencyContact: String? = null,
+    /** Upah Lembur (UL) per jam - nullable; saat null, UI menampilkan GPPH sebagai default (belum disimpan secara eksplisit). */
+    val overtimeRate: Long? = null,
+    /** Premi Lembur (PL) - nullable; saat null, UI menampilkan GPPH sebagai default (belum disimpan secara eksplisit). */
+    val overtimePremium: Long? = null
 )

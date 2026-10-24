@@ -15,14 +15,14 @@ import com.mypayroll.data.local.entity.EmployeeContractEntity
 import com.mypayroll.data.local.entity.EmployeeDisciplinaryActionEntity
 import com.mypayroll.data.local.entity.EmployeeEntity
 import com.mypayroll.data.local.entity.EmployeeIncentiveEntity
-import com.mypayroll.data.local.entity.EmployeePayComponentHistoryEntity
 import com.mypayroll.data.local.entity.EmployeePositionHistoryEntity
 import com.mypayroll.data.local.entity.EmployeeSalaryHistoryEntity
+import com.mypayroll.data.local.entity.EmployeeVariableSalaryHistoryEntity
+import com.mypayroll.data.local.entity.IncentiveTypeEntity
 import com.mypayroll.data.local.entity.LeaveRequestEntity
 import com.mypayroll.data.local.entity.LeaveTypeEntity
 import com.mypayroll.data.local.entity.OvertimeAssignmentEntity
 import com.mypayroll.data.local.entity.OvertimeRecordEntity
-import com.mypayroll.data.local.entity.PayComponentEntity
 import com.mypayroll.data.local.entity.PayrollApprovalEntity
 import com.mypayroll.data.local.entity.PayrollPeriodEntity
 import com.mypayroll.data.local.entity.PayrollResultEntity
@@ -36,14 +36,14 @@ import com.mypayroll.data.local.dao.EmployeeContractDao
 import com.mypayroll.data.local.dao.EmployeeDao
 import com.mypayroll.data.local.dao.EmployeeDisciplinaryActionDao
 import com.mypayroll.data.local.dao.EmployeeIncentiveDao
-import com.mypayroll.data.local.dao.EmployeePayComponentHistoryDao
 import com.mypayroll.data.local.dao.EmployeePositionHistoryDao
 import com.mypayroll.data.local.dao.EmployeeSalaryHistoryDao
+import com.mypayroll.data.local.dao.EmployeeVariableSalaryHistoryDao
+import com.mypayroll.data.local.dao.IncentiveTypeDao
 import com.mypayroll.data.local.dao.LeaveRequestDao
 import com.mypayroll.data.local.dao.LeaveTypeDao
 import com.mypayroll.data.local.dao.OvertimeAssignmentDao
 import com.mypayroll.data.local.dao.OvertimeRecordDao
-import com.mypayroll.data.local.dao.PayComponentDao
 import com.mypayroll.data.local.dao.PayrollApprovalDao
 import com.mypayroll.data.local.dao.PayrollPeriodDao
 import com.mypayroll.data.local.dao.PayrollResultDao
@@ -60,20 +60,20 @@ import com.mypayroll.data.local.dao.PositionDao
         EmployeeDisciplinaryActionEntity::class,
         EmployeeEntity::class,
         EmployeeIncentiveEntity::class,
-        EmployeePayComponentHistoryEntity::class,
         EmployeePositionHistoryEntity::class,
         EmployeeSalaryHistoryEntity::class,
+        EmployeeVariableSalaryHistoryEntity::class,
+        IncentiveTypeEntity::class,
         LeaveRequestEntity::class,
         LeaveTypeEntity::class,
         OvertimeAssignmentEntity::class,
         OvertimeRecordEntity::class,
-        PayComponentEntity::class,
         PositionEntity::class,
         PayrollPeriodEntity::class,
         PayrollResultEntity::class,
         PayrollApprovalEntity::class
     ],
-    version = 2,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(RoomConverters::class)
@@ -88,14 +88,14 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun employeeDao(): EmployeeDao
     abstract fun employeeDisciplinaryActionDao(): EmployeeDisciplinaryActionDao
     abstract fun employeeIncentiveDao(): EmployeeIncentiveDao
-    abstract fun employeePayComponentHistoryDao(): EmployeePayComponentHistoryDao
     abstract fun employeePositionHistoryDao(): EmployeePositionHistoryDao
     abstract fun employeeSalaryHistoryDao(): EmployeeSalaryHistoryDao
+    abstract fun employeeVariableSalaryHistoryDao(): EmployeeVariableSalaryHistoryDao
+    abstract fun incentiveTypeDao(): IncentiveTypeDao
     abstract fun leaveRequestDao(): LeaveRequestDao
     abstract fun leaveTypeDao(): LeaveTypeDao
     abstract fun overtimeAssignmentDao(): OvertimeAssignmentDao
     abstract fun overtimeRecordDao(): OvertimeRecordDao
-    abstract fun payComponentDao(): PayComponentDao
     abstract fun positionDao(): PositionDao
     abstract fun payrollPeriodDao(): PayrollPeriodDao
     abstract fun payrollResultDao(): PayrollResultDao
@@ -111,7 +111,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "vic_business.db"
-                ).addMigrations(MIGRATION_1_2).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build().also { INSTANCE = it }
             }
     }
 }

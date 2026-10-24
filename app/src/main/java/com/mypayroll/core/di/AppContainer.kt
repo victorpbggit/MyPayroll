@@ -10,19 +10,22 @@ import com.mypayroll.data.repository.DocumentRepositoryImpl
 import com.mypayroll.data.repository.EmployeeContractRepositoryImpl
 import com.mypayroll.data.repository.EmployeeDisciplinaryActionRepositoryImpl
 import com.mypayroll.data.repository.EmployeeIncentiveRepositoryImpl
-import com.mypayroll.data.repository.EmployeePayComponentHistoryRepositoryImpl
 import com.mypayroll.data.repository.EmployeePositionHistoryRepositoryImpl
 import com.mypayroll.data.repository.EmployeeRepositoryImpl
 import com.mypayroll.data.repository.EmployeeSalaryHistoryRepositoryImpl
+import com.mypayroll.data.repository.EmployeeVariableSalaryHistoryRepositoryImpl
+import com.mypayroll.data.repository.IncentiveTypeRepositoryImpl
+import com.mypayroll.data.repository.LatePenaltyConfigRepositoryImpl
+import com.mypayroll.data.repository.PayrollGeneralSettingsRepositoryImpl
 import com.mypayroll.data.repository.LeaveRequestRepositoryImpl
 import com.mypayroll.data.repository.LeaveTypeRepositoryImpl
 import com.mypayroll.data.repository.OvertimeAssignmentRepositoryImpl
 import com.mypayroll.data.repository.OvertimeRecordRepositoryImpl
-import com.mypayroll.data.repository.PayComponentRepositoryImpl
+import com.mypayroll.data.repository.OvertimeRuleConfigRepositoryImpl
 import com.mypayroll.data.repository.PayrollApprovalRepositoryImpl
+import com.mypayroll.data.repository.PayrollCalendarRepositoryImpl
 import com.mypayroll.data.repository.PayrollPeriodRepositoryImpl
 import com.mypayroll.data.repository.PayrollResultRepositoryImpl
-import com.mypayroll.data.repository.PayrollSetupRepositoryImpl
 import com.mypayroll.data.repository.PositionRepositoryImpl
 import com.mypayroll.domain.repository.AttendanceExceptionRepository
 import com.mypayroll.domain.repository.AttendanceRepository
@@ -32,19 +35,22 @@ import com.mypayroll.domain.repository.DocumentRepository
 import com.mypayroll.domain.repository.EmployeeContractRepository
 import com.mypayroll.domain.repository.EmployeeDisciplinaryActionRepository
 import com.mypayroll.domain.repository.EmployeeIncentiveRepository
-import com.mypayroll.domain.repository.EmployeePayComponentHistoryRepository
 import com.mypayroll.domain.repository.EmployeePositionHistoryRepository
 import com.mypayroll.domain.repository.EmployeeRepository
 import com.mypayroll.domain.repository.EmployeeSalaryHistoryRepository
+import com.mypayroll.domain.repository.EmployeeVariableSalaryHistoryRepository
+import com.mypayroll.domain.repository.IncentiveTypeRepository
+import com.mypayroll.domain.repository.LatePenaltyConfigRepository
+import com.mypayroll.domain.repository.PayrollGeneralSettingsRepository
 import com.mypayroll.domain.repository.LeaveRequestRepository
 import com.mypayroll.domain.repository.LeaveTypeRepository
 import com.mypayroll.domain.repository.OvertimeAssignmentRepository
 import com.mypayroll.domain.repository.OvertimeRecordRepository
-import com.mypayroll.domain.repository.PayComponentRepository
+import com.mypayroll.domain.repository.OvertimeRuleConfigRepository
 import com.mypayroll.domain.repository.PayrollApprovalRepository
+import com.mypayroll.domain.repository.PayrollCalendarRepository
 import com.mypayroll.domain.repository.PayrollPeriodRepository
 import com.mypayroll.domain.repository.PayrollResultRepository
-import com.mypayroll.domain.repository.PayrollSetupRepository
 import com.mypayroll.domain.repository.PositionRepository
 
 /**
@@ -74,22 +80,25 @@ class AppContainer(context: Context) {
         OvertimeAssignmentRepositoryImpl(database.overtimeAssignmentDao())
     val overtimeRecordRepository: OvertimeRecordRepository = OvertimeRecordRepositoryImpl(database.overtimeRecordDao())
 
-    val payComponentRepository: PayComponentRepository = PayComponentRepositoryImpl(database.payComponentDao())
     val employeeSalaryHistoryRepository: EmployeeSalaryHistoryRepository =
         EmployeeSalaryHistoryRepositoryImpl(database.employeeSalaryHistoryDao())
-    val employeePayComponentHistoryRepository: EmployeePayComponentHistoryRepository =
-        EmployeePayComponentHistoryRepositoryImpl(database.employeePayComponentHistoryDao())
+    val employeeVariableSalaryHistoryRepository: EmployeeVariableSalaryHistoryRepository =
+        EmployeeVariableSalaryHistoryRepositoryImpl(database.employeeVariableSalaryHistoryDao())
     val employeeIncentiveRepository: EmployeeIncentiveRepository =
         EmployeeIncentiveRepositoryImpl(database.employeeIncentiveDao())
     val employeeDisciplinaryActionRepository: EmployeeDisciplinaryActionRepository =
         EmployeeDisciplinaryActionRepositoryImpl(database.employeeDisciplinaryActionDao())
+    val incentiveTypeRepository: IncentiveTypeRepository = IncentiveTypeRepositoryImpl(database.incentiveTypeDao())
 
     val documentRepository: DocumentRepository = DocumentRepositoryImpl(database.documentDao())
 
     val payrollPeriodRepository: PayrollPeriodRepository = PayrollPeriodRepositoryImpl(database.payrollPeriodDao())
     val payrollResultRepository: PayrollResultRepository = PayrollResultRepositoryImpl(database.payrollResultDao())
     val payrollApprovalRepository: PayrollApprovalRepository = PayrollApprovalRepositoryImpl(database.payrollApprovalDao())
-    val payrollSetupRepository: PayrollSetupRepository = PayrollSetupRepositoryImpl(context)
+    val payrollCalendarRepository: PayrollCalendarRepository = PayrollCalendarRepositoryImpl(context)
+    val overtimeRuleConfigRepository: OvertimeRuleConfigRepository = OvertimeRuleConfigRepositoryImpl(context)
+    val latePenaltyConfigRepository: LatePenaltyConfigRepository = LatePenaltyConfigRepositoryImpl(context)
+    val payrollGeneralSettingsRepository: PayrollGeneralSettingsRepository = PayrollGeneralSettingsRepositoryImpl(context)
 
     companion object {
         @Volatile

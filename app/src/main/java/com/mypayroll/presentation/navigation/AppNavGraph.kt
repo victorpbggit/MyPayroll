@@ -26,6 +26,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.mypayroll.presentation.attendance.AttendanceScreen
 import com.mypayroll.presentation.common.BackScaffold
+import com.mypayroll.presentation.compensation.EmployeeCompensationScreen
 import com.mypayroll.presentation.dashboard.DashboardQuickActions
 import com.mypayroll.presentation.dashboard.DashboardScreen
 import com.mypayroll.presentation.document.DocumentScreen
@@ -42,6 +43,11 @@ import com.mypayroll.presentation.payroll.PayrollCalculatorScreen
 import com.mypayroll.presentation.payroll.PayrollPeriodDetailScreen
 import com.mypayroll.presentation.payroll.PayrollScreen
 import com.mypayroll.presentation.payrollsetup.PayrollSetupScreen
+import com.mypayroll.presentation.payrollsetup.calendar.PayrollCalendarScreen
+import com.mypayroll.presentation.payrollsetup.generalsettings.PayrollGeneralSettingsScreen
+import com.mypayroll.presentation.payrollsetup.incentivetypes.IncentiveTypeSettingsScreen
+import com.mypayroll.presentation.payrollsetup.latepenalty.LatePenaltyScreen
+import com.mypayroll.presentation.payrollsetup.overtimerules.OvertimeRulesScreen
 import com.mypayroll.core.di.LocalAppContainer
 import com.mypayroll.domain.usecase.DeleteEmployeeUseCase
 import com.mypayroll.domain.usecase.ObserveEmployeesUseCase
@@ -118,7 +124,8 @@ fun AppNavGraph() {
                 EmployeeDetailScreen(
                     employeeId,
                     onBack = { navController.popBackStack() },
-                    onEdit = { id -> navController.navigate(Routes.employeeEdit(id)) }
+                    onEdit = { id -> navController.navigate(Routes.employeeEdit(id)) },
+                    onOpenCompensation = { id -> navController.navigate(Routes.employeeCompensation(id)) }
                 )
             }
             composable(
@@ -127,6 +134,13 @@ fun AppNavGraph() {
             ) { backStackEntry ->
                 val employeeId = backStackEntry.arguments?.getLong("employeeId") ?: return@composable
                 EmployeeEditScreen(employeeId, onDone = { navController.popBackStack() })
+            }
+            composable(
+                Routes.EMPLOYEE_COMPENSATION,
+                arguments = listOf(navArgument("employeeId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val employeeId = backStackEntry.arguments?.getLong("employeeId") ?: return@composable
+                EmployeeCompensationScreen(employeeId, onBack = { navController.popBackStack() })
             }
             composable(Routes.ATTENDANCE) { AttendanceScreen() }
             composable(Routes.LEAVE) {
@@ -148,7 +162,7 @@ fun AppNavGraph() {
                         MoreMenuItem("Lembur", "Penugasan dan pencatatan lembur") { navController.navigate(Routes.OVERTIME) },
                         MoreMenuItem("Organisasi & Kontrak", "Departemen, posisi, jenis kontrak, dan kontrak karyawan") { navController.navigate(Routes.ORGANIZATION) },
                         MoreMenuItem("Dokumen", "Metadata dokumen karyawan") { navController.navigate(Routes.DOCUMENTS) },
-                        MoreMenuItem("Payroll Setup", "Atur nilai default GP, TJ, UM, PH, UL, dan PL") { navController.navigate(Routes.PAYROLL_SETUP) }
+                        MoreMenuItem("Payroll Setup", "Calendar Hari Kerja & Holiday, Presentase Perhitungan Lembur, Penalty Keterlambatan") { navController.navigate(Routes.PAYROLL_SETUP) }
                     )
                 )
             }
@@ -158,7 +172,21 @@ fun AppNavGraph() {
                     onOpenSetup = { navController.navigate(Routes.PAYROLL_SETUP) }
                 )
             }
-            composable(Routes.PAYROLL_SETUP) { PayrollSetupScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PAYROLL_SETUP) {
+                PayrollSetupScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenCalendar = { navController.navigate(Routes.PAYROLL_CALENDAR) },
+                    onOpenOvertimeRules = { navController.navigate(Routes.PAYROLL_OVERTIME_RULES) },
+                    onOpenLatePenalty = { navController.navigate(Routes.PAYROLL_LATE_PENALTY) },
+                    onOpenGeneralSettings = { navController.navigate(Routes.PAYROLL_GENERAL_SETTINGS) },
+                    onOpenIncentiveTypes = { navController.navigate(Routes.PAYROLL_INCENTIVE_TYPES) }
+                )
+            }
+            composable(Routes.PAYROLL_CALENDAR) { PayrollCalendarScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PAYROLL_OVERTIME_RULES) { OvertimeRulesScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PAYROLL_LATE_PENALTY) { LatePenaltyScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PAYROLL_GENERAL_SETTINGS) { PayrollGeneralSettingsScreen(onBack = { navController.popBackStack() }) }
+            composable(Routes.PAYROLL_INCENTIVE_TYPES) { IncentiveTypeSettingsScreen(onBack = { navController.popBackStack() }) }
             composable(
                 Routes.PAYROLL_DETAIL,
                 arguments = listOf(navArgument("periodId") { type = NavType.LongType })

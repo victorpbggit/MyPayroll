@@ -148,6 +148,21 @@ fun ErrorBanner(message: String, onDismiss: (() -> Unit)? = null, modifier: Modi
     }
 }
 
+/** Confirmation banner for a successfully completed operation - the positive counterpart to [ErrorBanner]. */
+@Composable
+fun InfoBanner(message: String, onDismiss: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(message, color = Tone.SUCCESS.contentColor(), modifier = Modifier.weight(1f))
+        if (onDismiss != null) {
+            TextButton(onClick = onDismiss) { Text("Tutup") }
+        }
+    }
+}
+
 @Composable
 fun ConfirmDialog(
     title: String,
@@ -294,29 +309,47 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-/** Nominal Rupiah dengan tampilan "Rp5.000.000" selama diketik, memakai formatter [toRupiah] yang sudah ada. */
+/**
+ * Input nominal Rupiah. Kotak input HANYA berisi digit mentah (tanpa "Rp" atau pemisah ribuan) -
+ * memformat ulang seluruh teks di dalam kotak input pada setiap ketikan (termasuk menyisipkan
+ * "Rp"/titik ribuan) menyebabkan kursor melompat ke posisi yang salah saat mengedit di tengah
+ * angka. Nilai terformat ("Rp5.000.000") ditampilkan sebagai label pratinjau DI LUAR kotak input
+ * (di bawahnya), memakai formatter [toRupiah] yang sudah ada, supaya tidak ada formatting yang
+ * ikut masuk ke state teks yang diedit.
+ */
 @Composable
 fun RupiahMoneyField(
     label: String,
     amount: Long,
     onAmountChange: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    supportingText: String? = null
+    supportingText: String? = null,
+    enabled: Boolean = true
 ) {
-    var text by remember(amount) { mutableStateOf(if (amount == 0L) "" else amount.toRupiah()) }
-    OutlinedTextField(
-        value = text,
-        onValueChange = { input ->
-            val value = input.filter(Char::isDigit).toLongOrNull() ?: 0L
-            onAmountChange(value)
-            text = if (value == 0L) "" else value.toRupiah()
-        },
-        label = { Text(label) },
-        placeholder = { Text("Rp0") },
-        singleLine = true,
-        supportingText = supportingText?.let { { Text(it) } },
-        modifier = modifier.fillMaxWidth()
-    )
+    var text by remember(amount) { mutableStateOf(if (amount == 0L) "" else amount.toString()) }
+    Column(modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { input ->
+                val digits = input.filter(Char::isDigit)
+                text = digits
+                onAmountChange(digits.toLongOrNull() ?: 0L)
+            },
+            label = { Text(label) },
+            placeholder = { Text("0") },
+            singleLine = true,
+            enabled = enabled,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            supportingText = supportingText?.let { { Text(it) } },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            amount.toRupiah(),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 4.dp, top = 2.dp)
+        )
+    }
 }
 
 @Composable

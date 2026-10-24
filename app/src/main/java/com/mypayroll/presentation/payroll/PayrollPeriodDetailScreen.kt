@@ -74,7 +74,7 @@ private fun PayrollPeriodDetailContent(initialPeriod: PayrollPeriodEntity, onBac
         PayrollPeriodDetailViewModel(
             initialPeriod,
             PreviewPayrollUseCase(
-                container.employeeRepository, container.employeeSalaryHistoryRepository, container.employeePayComponentHistoryRepository,
+                container.employeeRepository, container.employeeSalaryHistoryRepository,
                 container.employeeIncentiveRepository, container.overtimeAssignmentRepository, container.overtimeRecordRepository, container.attendanceRepository
             ),
             ApprovePayrollUseCase(container.payrollResultRepository, container.payrollPeriodRepository, container.payrollApprovalRepository),

@@ -16,7 +16,6 @@ import com.mypayroll.domain.payroll.PayrollDeduction
 import com.mypayroll.domain.repository.AttendanceRepository
 import com.mypayroll.domain.repository.EmployeeRepository
 import com.mypayroll.domain.repository.EmployeeSalaryHistoryRepository
-import com.mypayroll.domain.repository.PayrollSetupRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,7 +52,6 @@ data class PayrollCalculatorUiState(
     val selectedEmployee: EmployeeEntity? = null,
     val isPrefilling: Boolean = false,
     val form: PayrollCalculatorFormState = PayrollCalculatorFormState(),
-    val defaultOvertimePremiumPerEvent: Long = 0L,
     val result: PayrollCalculationResult? = null,
     val errorMessage: String? = null
 )
@@ -65,15 +63,14 @@ data class PayrollCalculatorUiState(
  * separate amounts, so a result here is never persisted (see the disclaimer shown in the UI).
  * Basic salary and hari hadir are pre-filled from real data (latest salary history, actual
  * attendance records for the period); every other component (TJ, UM, PH, UL, PL) has no
- * dedicated source in the current schema, so it is pre-filled from the global defaults set
- * in Payroll Setup ([PayrollSetupRepository]) instead - every field stays editable per employee.
+ * dedicated source in the current schema, so it starts at "0" and is entered manually per
+ * employee - every field stays editable.
  */
 class PayrollCalculatorViewModel(
     period: PayrollPeriodEntity,
     private val employeeRepository: EmployeeRepository,
     private val salaryHistoryRepository: EmployeeSalaryHistoryRepository,
     private val attendanceRepository: AttendanceRepository,
-    private val payrollSetupRepository: PayrollSetupRepository,
     private val calculatePayrollUseCase: CalculatePayrollUseCase
 ) : ViewModel() {
 
@@ -86,11 +83,9 @@ class PayrollCalculatorViewModel(
         val period = _state.value.period ?: return
         _state.value = _state.value.copy(selectedEmployee = employee, result = null, isPrefilling = true)
         viewModelScope.launch {
-            val config = payrollSetupRepository.getConfig()
-
             val latestSalary = salaryHistoryRepository.observeByEmployee(employee.id).first()
                 .filter { !it.effectiveDate.isAfter(period.endDate) }
-                .maxByOrNull { it.effectiveDate }?.basicSalary ?: config.basicSalaryMonthly
+                .maxByOrNull { it.effectiveDate }?.basicSalary ?: 0L
 
             val periodAttendance = attendanceRepository.observeByEmployee(employee.id).first()
                 .filter { !it.workDate.isBefore(period.startDate) && !it.workDate.isAfter(period.endDate) }
@@ -100,17 +95,10 @@ class PayrollCalculatorViewModel(
 
             _state.value = _state.value.copy(
                 isPrefilling = false,
-                defaultOvertimePremiumPerEvent = config.overtimePremiumPerEvent,
                 form = PayrollCalculatorFormState(
                     basicSalaryMonthly = latestSalary.toString(),
-                    positionAllowanceMonthly = config.positionAllowanceMonthly.toString(),
-                    mealAllowanceMonthlyManager = config.mealAllowanceMonthlyManager.toString(),
-                    attendancePremiumMonthlyManager = config.attendancePremiumMonthlyManager.toString(),
-                    mealAllowanceDaily = config.mealAllowanceDaily.toString(),
-                    attendancePremiumDaily = config.attendancePremiumDaily.toString(),
                     scheduledWorkDays = calendarDays.toString(),
-                    attendanceDays = attendanceDays.coerceAtMost(calendarDays).toString(),
-                    overtimeHourlyRate = config.overtimeHourlyRate.toString()
+                    attendanceDays = attendanceDays.coerceAtMost(calendarDays).toString()
                 )
             )
         }
